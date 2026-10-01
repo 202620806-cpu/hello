@@ -3,13 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>부기공 커뮤니티 - 부산기계공업고등학교</title>
+<title>bmt인사이드 - 부산기계공업고등학교</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <div class="header-inner">
-    <div class="logo"><img src="기공로고.png" alt="부산기계공업고 로고" class="logo-img"> 부기공 커뮤니티</div>
+  <div class="masthead">
+    <div class="masthead-inner">
+      <a class="logo" href="#" aria-label="bmt인사이드 홈">
+        <img src="기공로고.png" alt="부산기계공업고 로고" class="logo-img">
+        <span><strong>bmt인사이드</strong><small>부산기계공업고등학교 학생 게시판</small></span>
+      </a>
+      <form class="search-box" id="searchForm" role="search">
+        <input id="searchInput" type="search" placeholder="게시글 제목·내용 검색" aria-label="게시글 검색">
+        <button type="button" id="clearSearch" class="clear-search" aria-label="검색어 지우기" hidden>×</button>
+        <button type="submit" aria-label="검색"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 5 5"></path></svg></button>
+      </form>
+    </div>
+  </div>
+  <div class="nav-band">
+    <div class="header-inner">
     <nav>
       <a href="#" data-cat="all" class="nav-link active">전체</a>
       <a href="#" data-cat="life" class="nav-link">학교생활</a>
@@ -18,6 +31,7 @@
       <a href="#" data-cat="free" class="nav-link">자유게시판</a>
     </nav>
     <button id="newPostBtn" class="btn-primary">✏️ 글쓰기</button>
+    </div>
   </div>
 </header>
 
@@ -30,24 +44,75 @@
 </div>
 
 <main>
-  <section class="hero">
-    <h1>부산기계공업고 학생들의 소통 공간</h1>
-    <p>선배들의 경험과 후배들의 궁금증, 학교생활과 실습 팁을 나눠보세요</p>
-    <img src="기공로고.png" alt="부산기계공업고 로고" class="hero-logo">
-  </section>
+  <div class="recent-bar">
+    <span class="recent-label">최근 방문</span><span class="recent-arrow">▾</span>
+    <span class="recent-divider">›</span><span>bmt인사이드</span>
+    <span class="recent-end">학생들과 함께 만드는 학교 이야기</span>
+  </div>
 
-  <section class="board-header">
-    <h2 id="boardTitle">전체 글</h2>
-    <div class="sort-box">
-      <select id="sortSelect">
-        <option value="latest">최신순</option>
-        <option value="popular">인기순</option>
-      </select>
+  <div class="content-grid">
+    <div class="main-column">
+      <section class="hero">
+        <div><span class="hero-kicker">BUSAN MECHANICAL TECHNICAL HIGH SCHOOL</span>
+          <h1>오늘의 BMT 이야기</h1>
+          <p>학교생활부터 실습 노하우까지, 우리끼리 나누는 이야기</p>
+        </div>
+        <span class="hero-mark" aria-hidden="true">B</span>
+      </section>
+
+      <section class="hot-section" aria-label="오늘의 인기글">
+        <div class="section-label"><strong>실시간 베스트</strong><span class="hot-dot">●</span><span>BMT 인기글</span></div>
+        <div class="hot-grid">
+          <article class="hot-card hot-blue"><span class="hot-tag">실습팁</span><strong>NC선반 실습,<br>이것만 기억하세요</strong><small>선배가 알려주는 현장 노하우</small></article>
+          <article class="hot-card hot-orange"><span class="hot-tag">학교생활</span><strong>자격증 준비는<br>언제부터 할까요?</strong><small>졸업생이 전하는 꿀팁</small></article>
+          <article class="hot-card hot-green"><span class="hot-tag">질문</span><strong>도면 읽는 법<br>쉽게 알려주세요</strong><small>선배들의 답변을 기다려요</small></article>
+          <article class="hot-card hot-purple"><span class="hot-tag">자유</span><strong>오늘 학교에서<br>무슨 일 있었어?</strong><small>우리들의 소소한 이야기</small></article>
+        </div>
+      </section>
+
+      <section class="board-header" id="boardHeader">
+        <h2 id="boardTitle">전체 글</h2>
+        <div class="board-tools"><span class="post-count" id="postCount"></span><div class="sort-box">
+          <select id="sortSelect" aria-label="정렬">
+            <option value="latest">최신순</option>
+            <option value="popular">인기순</option>
+          </select>
+        </div></div>
+      </section>
+
+      <section id="postList" class="post-list"></section>
+      <div id="emptyMsg" class="empty-msg" hidden>아직 글이 없습니다. 첫 글의 주인공이 되어보세요! 🛠️</div>
     </div>
-  </section>
 
-  <section id="postList" class="post-list"></section>
-  <div id="emptyMsg" class="empty-msg" hidden>아직 글이 없습니다. 첫 글의 주인공이 되어보세요! 🛠️</div>
+    <aside class="sidebar">
+      <section class="side-panel login-panel">
+        <h3>bmt인사이드 로그인</h3>
+        <p>로그인 없이 게시글을 둘러볼 수 있어요.</p>
+        <button type="button" class="side-login" id="sideWriteBtn">✏️ 글 쓰러 가기</button>
+        <div class="side-links"><a href="#" id="sideAllLink">전체 글 보기</a><span>·</span><a href="#" id="sideSeniorLink">선배에게 질문</a></div>
+      </section>
+      <section class="side-panel ranking-panel">
+        <div class="side-heading"><h3><span>실북갤</span> 학과별 인기</h3><span class="side-tabs">오늘</span></div>
+        <ol class="ranking-list">
+          <li><b>1</b><span>기계시스템과</span><i>실습 이야기</i></li>
+          <li><b>2</b><span>전기과</span><i>자격증 정보</i></li>
+          <li><b>3</b><span>스마트팩토리과</span><i>진로·취업</i></li>
+          <li><b>4</b><span>설비시스템과</span><i>학교생활</i></li>
+          <li><b>5</b><span>자유게시판</span><i>우리들의 이야기</i></li>
+        </ol>
+        <button class="side-more" type="button" id="deptMoreBtn">학과 게시판 둘러보기 <span>›</span></button>
+      </section>
+      <section class="side-panel guide-panel">
+        <div class="side-heading"><h3><span>HOT</span> 지금 많이 보는 글</h3></div>
+        <ol class="ranking-list hot-ranking">
+          <li><b>1</b><span>NC선반 실습 팁 공유</span></li>
+          <li><b>2</b><span>자격증 준비하는 방법</span></li>
+          <li><b>3</b><span>선배에게 진로 질문하기</span></li>
+        </ol>
+      </section>
+      <div class="side-note">부기공 학생들의 안전하고 즐거운 소통 공간을 함께 만들어요.</div>
+    </aside>
+  </div>
 </main>
 
 <!-- 글쓰기 모달 -->
@@ -135,6 +200,6 @@
   <p>부산기계공업고등학교 학생 커뮤니티 · 학생들끼리 나누는 정보 공유 공간</p>
 </footer>
 
-<script src="app.js"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

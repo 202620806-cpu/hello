@@ -38,6 +38,7 @@ let currentSort = 'latest';
 let deptFilter = 'all';
 let currentDetailId = null;
 let pendingImage = null;
+let searchQuery = '';
 
 // 비방·비속어 필터 단어 목록
 const BAD_WORDS = ['시발', '씨발', '좆', '병신', '지랄', '개새끼', '새끼', '존나', '니미', 'fuck', '바보', '멍청이', '등신', '닥쳐', '꺼져', '뒈져', '돌아이', '머저리', '임마', '빈수레', '싸가지'];
@@ -78,9 +79,19 @@ function timeAgo(iso) {
 }
 
 function render() {
-  let list = posts.filter(p => currentCat === 'all' || p.cat === currentCat);
-  if (deptFilter !== 'all') {
+  let list = searchQuery
+    ? posts.slice()
+    : posts.filter(p => currentCat === 'all' || p.cat === currentCat);
+  if (!searchQuery && deptFilter !== 'all') {
     list = list.filter(p => p.dept === deptFilter);
+  }
+  if (searchQuery) {
+    const query = searchQuery.normalize('NFKC').toLocaleLowerCase();
+    list = list.filter(p => {
+      const searchable = [p.title, p.body, p.nick, CATS[p.cat]?.name, p.dept ? CATS[p.dept]?.name : '']
+        .filter(Boolean).join(' ').normalize('NFKC').toLocaleLowerCase();
+      return searchable.includes(query);
+    });
   }
   if (currentSort === 'latest') {
     list.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -90,9 +101,16 @@ function render() {
   const el = document.getElementById('postList');
   el.innerHTML = '';
   document.getElementById('emptyMsg').hidden = list.length > 0;
-  document.getElementById('boardTitle').textContent =
-    (currentCat === 'all' ? '전체 글' : CATS[currentCat].name) +
-    (deptFilter !== 'all' ? ` · ${CATS[deptFilter].name}` : '');
+  document.getElementById('emptyMsg').textContent = searchQuery
+    ? '검색 결과가 없습니다. 다른 검색어로 다시 찾아보세요.'
+    : '아직 글이 없습니다. 첫 글의 주인공이 되어보세요! 🛠️';
+  const count = document.getElementById('postCount');
+  count.textContent = searchQuery ? `검색 결과 ${list.length}개` : `${list.length}개`;
+  count.classList.toggle('search-count', !!searchQuery);
+  document.getElementById('boardTitle').textContent = searchQuery
+    ? `“${searchQuery}” 검색 결과`
+    : (currentCat === 'all' ? '전체 글' : CATS[currentCat].name) +
+      (deptFilter !== 'all' ? ` · ${CATS[deptFilter].name}` : '');
 
   list.forEach(p => {
     const card = document.createElement('div');
@@ -162,6 +180,7 @@ function renderComments(p) {
 document.querySelectorAll('.nav-link').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
+    resetSearch();
     document.querySelectorAll('.nav-link').forEach(x => x.classList.remove('active'));
     a.classList.add('active');
     currentCat = a.dataset.cat;
@@ -172,6 +191,7 @@ document.querySelectorAll('.nav-link').forEach(a => {
 
 document.querySelectorAll('.dept-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    resetSearch();
     document.querySelectorAll('.dept-btn').forEach(x => x.classList.remove('active'));
     btn.classList.add('active');
     deptFilter = btn.dataset.dept;
@@ -182,6 +202,52 @@ document.querySelectorAll('.dept-btn').forEach(btn => {
 document.getElementById('sortSelect').addEventListener('change', e => {
   currentSort = e.target.value;
   render();
+});
+
+function applySearch() {
+  searchQuery = document.getElementById('searchInput').value.trim().replace(/\s+/g, ' ');
+  if (searchQuery) {
+    currentCat = 'all';
+    deptFilter = 'all';
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.cat === 'all'));
+    document.querySelectorAll('.dept-btn').forEach(button => button.classList.toggle('active', button.dataset.dept === 'all'));
+  }
+  document.getElementById('clearSearch').hidden = !searchQuery;
+  render();
+}
+
+function resetSearch() {
+  searchQuery = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearSearch').hidden = true;
+}
+
+document.getElementById('searchForm').addEventListener('submit', e => {
+  e.preventDefault();
+  applySearch();
+  document.getElementById('boardHeader').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+document.getElementById('searchInput').addEventListener('input', applySearch);
+document.getElementById('clearSearch').addEventListener('click', () => {
+  resetSearch();
+  render();
+  document.getElementById('searchInput').focus();
+});
+
+document.getElementById('sideWriteBtn').addEventListener('click', () => {
+  document.getElementById('newPostBtn').click();
+});
+document.getElementById('sideAllLink').addEventListener('click', e => {
+  e.preventDefault();
+  document.querySelector('.nav-link[data-cat="all"]').click();
+});
+document.getElementById('sideSeniorLink').addEventListener('click', e => {
+  e.preventDefault();
+  document.querySelector('.nav-link[data-cat="senior"]').click();
+});
+document.getElementById('deptMoreBtn').addEventListener('click', () => {
+  document.getElementById('deptBar').hidden = false;
+  document.getElementById('deptBar').scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
 document.getElementById('newPostBtn').addEventListener('click', () => {
