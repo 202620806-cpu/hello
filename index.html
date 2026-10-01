@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부기공 커뮤니티 - 부산기계공업고등학교</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo"><img src="기공로고.png" alt="부산기계공업고 로고" class="logo-img"> 부기공 커뮤니티</div>
+    <nav>
+      <a href="#" data-cat="all" class="nav-link active">전체</a>
+      <a href="#" data-cat="life" class="nav-link">학교생활</a>
+      <a href="#" data-cat="practice" class="nav-link">실습팁</a>
+      <a href="#" data-cat="senior" class="nav-link">선배에게 질문</a>
+      <a href="#" data-cat="free" class="nav-link">자유게시판</a>
+    </nav>
+    <button id="newPostBtn" class="btn-primary">✏️ 글쓰기</button>
+  </div>
+</header>
+
+<div id="deptBar" class="dept-bar" hidden>
+  <button class="dept-btn active" data-dept="all">전체 학과</button>
+  <button class="dept-btn" data-dept="mech">기계시스템과</button>
+  <button class="dept-btn" data-dept="equip">설비시스템과</button>
+  <button class="dept-btn" data-dept="elec">전기과</button>
+  <button class="dept-btn" data-dept="smart">스마트팩토리과</button>
+</div>
+
+<main>
+  <section class="hero">
+    <h1>부산기계공업고 학생들의 소통 공간</h1>
+    <p>선배들의 경험과 후배들의 궁금증, 학교생활과 실습 팁을 나눠보세요</p>
+    <img src="기공로고.png" alt="부산기계공업고 로고" class="hero-logo">
+  </section>
+
+  <section class="board-header">
+    <h2 id="boardTitle">전체 글</h2>
+    <div class="sort-box">
+      <select id="sortSelect">
+        <option value="latest">최신순</option>
+        <option value="popular">인기순</option>
+      </select>
+    </div>
+  </section>
+
+  <section id="postList" class="post-list"></section>
+  <div id="emptyMsg" class="empty-msg" hidden>아직 글이 없습니다. 첫 글의 주인공이 되어보세요! 🛠️</div>
+</main>
+
+<!-- 글쓰기 모달 -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>새 글 쓰기</h3>
+      <button id="closeModal" class="btn-x">✕</button>
+    </div>
+    <div class="warning-box">
+      ⚠️ 게시 전 주의사항<br>
+      비속어, 욕설, 비방·모욕, 허위사실 유포 등 타인을 비방하는 글은 <b>등록이 제한</b>될 수 있습니다.
+      학교 커뮤니티를 깨끗하게 함께 지켜주세요.
+    </div>
+    <form id="postForm">
+      <label>카테고리</label>
+      <select id="postCat" required>
+        <option value="life">학교생활</option>
+        <option value="practice">실습팁</option>
+        <option value="senior">선배에게 질문</option>
+        <option value="free">자유게시판</option>
+      </select>
+      <label>학과 (선택)</label>
+      <select id="postDept">
+        <option value="">학과 무관 / 전체</option>
+        <option value="mech">기계시스템과</option>
+        <option value="equip">설비시스템과</option>
+        <option value="elec">전기과</option>
+        <option value="smart">스마트팩토리과</option>
+      </select>
+      <label>학년/신분</label>
+      <select id="postGrade">
+        <option value="1학년">1학년</option>
+        <option value="2학년">2학년</option>
+        <option value="3학년">3학년</option>
+        <option value="졸업생">졸업생</option>
+      </select>
+      <label>닉네임</label>
+      <input type="text" id="postNick" placeholder="닉네임" required maxlength="15">
+      <label>비밀번호 (글 삭제용)</label>
+      <input type="password" id="postPw" placeholder="비밀번호" required maxlength="20">
+      <label>제목</label>
+      <input type="text" id="postTitle" placeholder="제목을 입력하세요" required maxlength="80">
+      <label>내용</label>
+      <textarea id="postBody" rows="7" placeholder="내용을 입력하세요" required></textarea>
+      <label>사진 첨부 (선택)</label>
+      <input type="file" id="postImage" accept="image/*">
+      <img id="imagePreview" class="img-preview" hidden alt="미리보기">
+      <button type="submit" class="btn-primary btn-full">등록하기</button>
+    </form>
+  </div>
+</div>
+
+<!-- 글 상세 모달 -->
+<div id="detailModal" class="modal" hidden>
+  <div class="modal-box detail">
+    <div class="modal-head">
+      <h3 id="dTitle"></h3>
+      <button id="closeDetail" class="btn-x">✕</button>
+    </div>
+    <div class="d-meta">
+      <span id="dBadge" class="badge"></span>
+      <span id="dNick"></span>
+      <span id="dDate"></span>
+      <button id="deleteBtn" class="btn-del">🗑 삭제</button>
+    </div>
+    <pre id="dBody" class="d-body"></pre>
+    <img id="dImage" class="d-image" hidden alt="첨부 이미지">
+    <div class="d-actions">
+      <button id="likeBtn">👍 좋아요 <span id="likeCount">0</span></button>
+    </div>
+    <div class="comments">
+      <h4>댓글 <span id="cCount"></span></h4>
+      <div id="commentList"></div>
+      <form id="commentForm" class="comment-form">
+        <input type="text" id="cNick" placeholder="닉네임" required maxlength="15">
+        <input type="text" id="cBody" placeholder="댓글을 입력하세요" required maxlength="200">
+        <button type="submit" class="btn-primary">등록</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>부산기계공업고등학교 학생 커뮤니티 · 학생들끼리 나누는 정보 공유 공간</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
